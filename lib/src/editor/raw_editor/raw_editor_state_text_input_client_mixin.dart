@@ -227,9 +227,20 @@ mixin RawEditorStateTextInputClientMixin on EditorState
     final text = value.text;
     final cursorPosition = value.selection.extentOffset;
     final diff = getDiff(oldText, text, cursorPosition);
+
+    // IMEにて入力を完了した際に、Flutterのバグで2重でテキストが追加されてしまう。
+    // 例えば、「名前と時計」と入力した際、Enterを押すと「名前と時計と時計」となってしまう。
+    // そのため、composingが終了した際に、selectionを更新することで、2重入力を防ぐ。
+    // 参考PR: https://github.com/flutter/flutter/pull/140516
+    if (effectiveLastKnownValue.composing.start != -1 &&
+        value.composing.end == -1) {
+      widget.controller.updateSelection(value.selection, ChangeSource.local);
+      return;
+    }
     if (diff.deleted.isEmpty && diff.inserted.isEmpty) {
       widget.controller.updateSelection(value.selection, ChangeSource.local);
     } else {
+      print("diff: $diff");
       widget.controller.replaceText(
         diff.start,
         diff.deleted.length,
