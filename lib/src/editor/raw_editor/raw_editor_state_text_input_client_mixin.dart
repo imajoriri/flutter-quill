@@ -2,7 +2,8 @@ import 'dart:ui' show lerpDouble;
 
 import 'package:flutter/animation.dart' show Curves;
 import 'package:flutter/cupertino.dart' show CupertinoTheme;
-import 'package:flutter/foundation.dart' show ValueNotifier, kIsWeb;
+import 'package:flutter/foundation.dart'
+    show ValueNotifier, defaultTargetPlatform, kIsWeb;
 import 'package:flutter/material.dart' show Theme;
 import 'package:flutter/scheduler.dart' show SchedulerBinding;
 import 'package:flutter/services.dart';
@@ -232,7 +233,8 @@ mixin RawEditorStateTextInputClientMixin on EditorState
     // 例えば、「名前と時計」と入力した際、Enterを押すと「名前と時計と時計」となってしまう。
     // そのため、composingが終了した際に、selectionを更新することで、2重入力を防ぐ。
     // 参考PR: https://github.com/flutter/flutter/pull/140516
-    if (effectiveLastKnownValue.composing.start != -1 &&
+    if (defaultTargetPlatform == TargetPlatform.macOS &&
+        effectiveLastKnownValue.composing.start != -1 &&
         value.composing.end == -1) {
       widget.controller.updateSelection(value.selection, ChangeSource.local);
       return;
@@ -240,7 +242,6 @@ mixin RawEditorStateTextInputClientMixin on EditorState
     if (diff.deleted.isEmpty && diff.inserted.isEmpty) {
       widget.controller.updateSelection(value.selection, ChangeSource.local);
     } else {
-      print("diff: $diff");
       widget.controller.replaceText(
         diff.start,
         diff.deleted.length,
