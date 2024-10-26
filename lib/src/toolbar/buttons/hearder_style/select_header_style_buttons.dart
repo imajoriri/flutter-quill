@@ -111,6 +111,7 @@ class QuillToolbarSelectHeaderStyleButtonsState
             controller: controller,
             context: context,
             onPressed: () => _sharedOnPressed(attribute),
+            attribute: attribute,
           ),
         );
       }
